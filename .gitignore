@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.pytest_tmp/
+.pytest_cache/
+/data/cifar-100-python/
+/data/cifar-100-python.tar.gz
