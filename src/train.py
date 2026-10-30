@@ -10,6 +10,7 @@ import numpy as np
 import torch
 
 from src.data import get_loaders, get_splits, get_val_triplets
+from src.eval import retrieval_metrics as numpy_retrieval_metrics
 from src.loss import TripletLoss, pairwise_distances
 from src.model import ResNet18
 from src.optim import Adam, NAdam, SGD, lr_at
@@ -36,30 +37,11 @@ def embed(model, loader, device):
 
 @torch.no_grad()
 def retrieval_metrics(embeddings, labels, chunk_size=64):
-    """Leave-one-out Recall@1 and mAP, computed in query chunks."""
-    device = embeddings.device
-    labels = labels.to(device)
-    n = len(labels)
-    positives_per_class = torch.bincount(labels) - 1
-    hits, average_precision = 0, 0.0
-
-    for start in range(0, n, chunk_size):
-        end = min(start + chunk_size, n)
-        distances = pairwise_distances(embeddings[start:end], embeddings)
-        rows = torch.arange(end - start, device=device)
-        distances[rows, torch.arange(start, end, device=device)] = torch.inf
-        order = distances.argsort(dim=1)
-        relevant = (labels[order] == labels[start:end, None]) & (
-            order != torch.arange(start, end, device=device)[:, None]
-        )
-        hits += relevant[:, 0].sum().item()
-        precision = relevant.cumsum(1) / torch.arange(
-            1, n + 1, device=device, dtype=embeddings.dtype
-        )
-        ap = (precision * relevant).sum(1) / positives_per_class[labels[start:end]]
-        average_precision += ap.sum().item()
-
-    return {"r1": hits / n, "map": average_precision / n}
+    """Shared NumPy leave-one-out metrics used by Stage 4 and Stage 5."""
+    return numpy_retrieval_metrics(
+        embeddings.detach().cpu().numpy(), labels.detach().cpu().numpy(),
+        chunk_size=chunk_size,
+    )
 
 
 @torch.no_grad()
