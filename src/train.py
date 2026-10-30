@@ -339,7 +339,9 @@ def main():
     args = parser.parse_args()
 
     if not torch.cuda.is_available():
-        raise RuntimeError("Stage 4 training is GPU-only; connect a CUDA Colab runtime.")
+        raise RuntimeError(
+            "Stage 4 training needs CUDA-enabled PyTorch and an available GPU."
+        )
     device = torch.device("cuda")
     if args.compare:
         runs = [
