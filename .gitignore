@@ -1,5 +1,10 @@
 __pycache__/
 *.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+build/
+dist/
 .venv/
 venv/
 *.pt
@@ -14,6 +19,7 @@ results/*
 !results/.gitkeep
 data/
 datasets/
+/splits/
 .ipynb_checkpoints/
 .vscode/
 .idea/

@@ -1,11 +1,29 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "src"
+name = "visual-similarity-search"
 version = "0.1.0"
+description = "Train and run a CIFAR-100 visual similarity search model."
 requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "torch>=2.1",
+    "torchvision>=0.16",
+]
+
+[project.optional-dependencies]
+tracking = ["wandb>=0.16"]
+
+[project.scripts]
+vss-classify = "src.train_classifier:main"
+vss-train = "src.train:main"
+vss-eval = "src.eval:main"
+vss-demo = "src.demo:main"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
